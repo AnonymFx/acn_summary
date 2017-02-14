@@ -50,3 +50,41 @@ The structure of an ICMP message is shown in Figure~\ref{fig:icmp_message}.
   \caption{ICMP Message}\label{fig:icmp_message}
 \end{figure}
 
+\subsection{Active Network Measurements}
+Network is actively measured by several parties like network providers (to manage traffic or reduce cost), service providers (to adjust service, get information about clients, \dots), clients (to check services, get best one) or researchers (for performance evaluation of algorithms).
+Furthermore malicious traffic can be detected.
+\vspace{5pt}
+
+Measurements are done with probe packets and looking at the packet loss, one-way delay, RTTs or packet inter-arrival times.
+
+\subsubsection*{(Paris-) Traceroute}
+Traceroute uses different TTLs in the IP header to get the route from the source to the destination.
+In case of load balancing though, traceroute might fail due to the appearance of ghost paths when successive packets are routed on different routes.
+
+Load balancing routers usually use the IP-5-Tuple to determine routes, so to fixthis Paris traceroute uses different fields than normal traceroute (e.g.\ destination port for tcp) to do measurements.
+
+\subsection{Address Resolution Protocol (ARP)}
+The ARP is used to map IP addresses to MAC addresses.
+For that, an ARP broadcast is sent by the sender of an IP packet to get the MAC address of the next hop.
+The node with the specified IP address responds and the sender caches the mapping and is able to send the resulting Ethernet frame.
+In case we have a network with routers, the router then again does an ARP request for the IP address specified in the received IP header and so the procedure begins again at that point.
+Cached information times out when not refreshed in a certain threshold.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.8\textwidth]{figures/arp_packet.png}
+  \caption{ARP Packet}\label{fig:arp_packet}
+\end{figure}
+
+\textbf{Reverse ARP} also exists, but is rarely used.
+
+\textbf{Proxy ARP} also responds for ARP request of one of its networks with ARP responses for hosts of another network.
+This enables transparent subnet gatewaying (two LANs with in same subnet), Host joining LAN via VPN and host separated via firewalls.
+\vspace{5pt}
+
+Since ARP is stateless and not authenticated, ARP responses can easily be forged to poison the cache of hots which can be used to redirect traffic.
+
+\subsection{Routing}
+Routers are layer 3 devices that maintain forwarding tables, implement routing protocols and forward IP packets based on the forwarding table and the destination IP address.
+
+\textbf{Routing} is the process on the control plane, where the forwarding table an hence the path incoming packets will follow is calculated.
+\textbf{Forwarding} then is the actual directing of packets to an outgoing link according to the previously calculated forwarding table.
