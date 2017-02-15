@@ -1,0 +1,86 @@
+%!TEX root = ../report.tex
+
+\section{Structure of the Internet}
+The Internet is separated into regions called \textbf{autonomous systems (AS)}.
+Routers in the same AS use \textbf{intra-AS routing} protocols whereas routers connecting different ASes, called \textbf{gateway/border routers} use \textbf{inter-AS routing} protocols.
+\textbf{Transit domains} are ASes, that forward traffic from one AS to another where in contrast a \textbf{stub domain} is an AS without transit traffic.
+Internet service providers are divided hierarchically: Tier-1 providers are on the top level and connected to each other.
+They can send traffic to one another without paying (peering).
+Tier-2 providers are connected to one or multiple Tier-1 providers and possibly to other Tier-2 providers.
+Tier-3 providers and local ISPs then are the last hop to the end systems.
+Every ISP has its own IP range purchased at the regional Internet Registrars which they are able to divide amongst their customers.
+
+\subsection{Associations of Internet Names and Numbers}
+\begin{description}
+  \item[ICANN] Internet Corporation for Assigned names and numbers: Administration of DNS TLDs
+  \item[IANA] Internet Assigned Numbers Authority: Assignment of Internet Numbers, administration of DNS root name servers and reverse DNS infrastructure, Assignment of protocol names and numbers
+  \item[NRO] Number Resource Organization: Association of the 5 Regional Internet Registrars (RIR)
+  \item[Regional Registras] Assigns IP addresses and AS numbers, administration of local Internet Registers (LIR)
+  \item[RIPE] Registration and administration of Internet resources: AS, prefix and routing information
+\end{description}
+
+\subsection{Routing Algorithms}
+Routing algorithms are usually an applied approach of least-cost path search in weighted graphs.
+The costs are represented for example by the inverse link bandwidth.
+
+They can be classified by several criteria:
+\begin{itemize}
+  \item Global or decentralized
+  \begin{itemize}
+    \item Global/Link State algorithms (L-S): All routers know the graph topology and link costs (usually through broadcasts) and are able to calculate the routing table by themselves (usually via Dijkstra)
+    \item Decentralized/Distance Vector algorithms (D-V): Routers only know neighbours and link costs to neighbours, routing tables are computed in collaboration
+  \end{itemize}
+  \item Static or dynamic
+  \begin{itemize}
+    \item Static: Routes change slowly over time
+    \item Dynamic: Routes change more quickly due to periodic update and in response to link cost changes
+  \end{itemize}
+  \item Scope: Intra- vs Inter- vs special purpose
+  \item Type of traffic: Unicast vs multicast
+  \item Trigger type: permanent routing vs on-demand routing (create routing table only if necessary)
+\end{itemize}
+
+\subsubsection*{D-V Algorithm}
+A typical example for a distance vector algorithm is the Bellman-Ford algorithm:
+\begin{enumerate}
+  \item Define $D_x(y)$ as the estimate of the least cost from x to y
+  \item Node x knows all costs to each neighbour v: $c(x,v)$
+  \item Every node x maintains a distance vector $D_x = [D_x(y): y \in N]$ where N is the set of nodes
+  \item Node x also maintains the distance vectors for each neighbour $D_v = [D_v(y): y \in N]$
+  \item Update messages for the estimated distances are sent from time to time to neighbours and might lead those to update its own distance vectors according to the B-F equation:
+    $D_x(y) \leftarrow \min_v{c(x,v) + D_v(y)} \text{ for each node } y \in N$
+  \item Under minor, natural conditions these estimates of $D_x(y)$ to the actual least costs $d_x(y)$
+\end{enumerate}
+
+A problem which occurs with this approach is that if a link becomes unavailable and thus its cost infinity, the algorithm will encounter the count to infinity problem.
+The paths to the disconnected node are increased per update by one, infinitely.
+Solutions for this are
+\begin{itemize}
+  \item Finite infinity: set infinite costs to a specific number, e.g. 16 in RIP
+  \item Split Horizon: Tell neighbours that they are part of the best path to a destination that the destination cannot be reached from the original node
+  \item Poisoned Reverse: Actively adverse a route as unreachable to neighbours from which the route was learned
+\end{itemize}<++>
+
+\subsubsection*{Path Vector Protocols}
+Path vector protocols try to improve the fact of D-V protocols that they do not include topology information.
+For each destination, the entire path for each destination is told to neighbours and then the cost calculation is done by looking at the paths.
+Furthermore loop detection can easily be done by searching if the own node ID appear in the paths.
+PV protocols are quite rarely used though, mainly in BGP but that is much more complex than just paths.
+
+\subsubsection*{Intra-AS Routing/Interior Gateway Protocols (IGP)}
+\begin{enumerate}
+  \item RIP: Routing Information Protocol
+  \item OSPF: Open Shortest Path First (hierarchical LSA), usually in medium to large systems
+  \item IS-IS: Intermediate System to Intermediate System, medium-sized ASes
+  \item (E)IGRP: (Enhanced) Interior Gateway Routing Protocol, CISCO proprietary, hybrid of LS and DV
+\end{enumerate}
+
+\subsubsection*{OSPF}
+The open shortest path first protocol uses an link state algorithm to generate routing tables.
+Advertisement of topology and costs of the directed graph is done via advertisement flooding.
+All messages are authenticated to prevent malicious intrusion (e.g.\ with IPsec).
+Furthermore multiple same-cost paths are supported and different metrics are considered to define the costs for links.
+The protocol has integrated unicast and multicast support (Multicast OSPF) that uses the same topology database as OSPF which lowers traffic.
+To even further reduce the traffic, hierarchical OSPF can be used in large domains where a two-level hierarchy is created.
+On the one side the backbone which are running OSPF among themselves and on the other hand local areas.
+Area border routes summarize distances to networks in the own area and advertises them to other area border routers.
