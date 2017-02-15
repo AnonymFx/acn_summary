@@ -1,0 +1,56 @@
+%!TEX root = ../report.tex
+
+\section{Network Measurement}
+Network performance can be measured with different metrics like throughput (bandwith or packet rate), latency (average, median, standard deviation,\dots), frame loss rate and others with different circumstances (load, traffic type,\dots).
+Different RFCs standards exist as guideline.
+
+\subsection{Throughput}
+Throughput is usually limited by the line rate and the speed and size of the lookup tables.
+It is measured in packets per second over the bandwidth since routers usually only look at packet headers and not the entire packet, so the actual size has only a minor importance.
+With this measurement unit the worst case scenario is network traffic at line rate and minimum packet size which is the minimum sized Ethernet packet plus the 7 byte preamble, 1 byte start-of-frame delimiter and the minimum inter-packet gap of 12 bytes, thus 84 bytes.\\
+\vspace{5pt}
+
+When testing, different measuring methodologies can be applied.
+The simplest one is to apply the highest possible packet rate on A and measure the packet rate at B.
+Though with this method, the devices might get overloaded which leads to different behavior.
+So a better version is to apply varying rates on A and find the highest rate were no loss occurs (RFC 2544).
+Problems of this approach again are that some devices loose packets when suddenly facing high packet rates due to energy saving mechanisms.
+As a summary the best approach depends on the device under test.
+
+\subsubsection*{Improving Throughput}
+Potential bottlenecks for packet forwarding are CPU processing power, NIC processing power, Bus bandwidth, memory bandwidth or CPU caches.
+As researches found out, the biggest limitation origins in the CPU.
+The most time is spent to process, receive and transmit packets there.
+When switching from kernel to user space, performance can be significantly increased due to fewer expensive system calls, simplified memory management and batch processing through the whole application.
+The disadvantages on the other hand are that only raw packets are handled, so protocols have to be reimplemented for every application, NICs can only be used by one application and there is no API compatibility to traditional user space applications.
+
+\subsection{Parallel Packet Processing}
+Modern NIC cards hare configurable to use multiple rx and tx queues to support multi-core parallelization to improve performance.
+Several metrics to distribute incoming traffic on the queues exist:
+\begin{itemize}
+  \item Per-packet basis: Slow when protocol state has to be synchronized and might cause packet reordering
+  \item Per-flow basis: Fast, protocols handled in the same core and cache and prevents packet reordering
+  \item Explicitly: Useful for e.g. virtual machines, slower than flow-based though
+\end{itemize}
+Usually packet forwarding is done in kernel space due to better performance than the socket API.
+
+\subsection{Latency}
+Sources of latency are serialization, propagation and calculations where buffers usually are the biggest bottleneck.
+Also the technique to receive packets plays a role:
+\begin{itemize}
+  \item one interrupt per packet: low latency but also low throughput because interrupts are expensive
+  \item one interrupt for multiple packets: high throughput but also high latency
+  \item no interrupts but polling based: low latency and high throughput but inefficient at low packet rates (busy waiting)
+\end{itemize}
+
+\subsection{Packet Generators}
+Packet generators exist in hardware and software varieties.
+Hardware generators are fast, precise and accurate.
+Software ones run on cheap hardware and are very flexible but face challenges with rate control and time stamping.\\
+
+To control the packet rate software implementations push single packets to the NIC where queues cannot be used.
+Also the NICs work with asynchronous push-pull models which can lead to micro bursts and thus to unreliable, imprecise and bad performance.
+Hardware generators on the other hand support hardware rate control where queues can be used and have good performance but they are quite inflexible.
+To combine the advantages of both, one can disable hardware control and use invalid packets in the queues to control the rate since those are simply dropped by the device under test without much overhead.
+
+
