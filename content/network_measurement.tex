@@ -1,7 +1,7 @@
 %!TEX root = ../report.tex
 
 \section{Network Measurement}
-Network performance can be measured with different metrics like throughput (bandwith or packet rate), latency (average, median, standard deviation,\dots), frame loss rate and others with different circumstances (load, traffic type,\dots).
+Network performance can be measured with different metrics like throughput (bandwidth or packet rate), latency (average, median, standard deviation,\dots), frame loss rate, topology measurements or others with different circumstances (load, traffic type,\dots).
 Different RFCs standards exist as guideline.
 
 \subsection{Throughput}
@@ -53,4 +53,29 @@ Also the NICs work with asynchronous push-pull models which can lead to micro bu
 Hardware generators on the other hand support hardware rate control where queues can be used and have good performance but they are quite inflexible.
 To combine the advantages of both, one can disable hardware control and use invalid packets in the queues to control the rate since those are simply dropped by the device under test without much overhead.
 
+\subsection{Active Measurements}
+\subsubsection*{Internet Wide Scans}
+When doing larger scale network scans are performed, several points have to be taken into consideration.
+For one which targets are selected which might be a specific hitlist provided by e.g. traceroute, web server logs or traffic traces, certain IP addresses per subnet or even a full 0/0 scan.
+Also there are performance requirements that need to be met and ethical considerations, too, since one causes sometimes large amounts of traffic on the scanned network.\\
+\vspace{5pt}
 
+\textbf{Nmap} is a common measurement tool which provides host discovery, service detection, OS detection and support for custom scripts.
+It provides a multitude of scanning techniques:
+\begin{itemize}
+  \item TCP scan: Sends TCP packets with different flags set. A SYN scan checks for open ports, ACK scans scan for (un-) filtered ports by a firewall. Some more exist.
+  \item ICMP scan: ping requests
+  \item UDP payload scan: Sends UDP packets with different payloads
+\end{itemize}
+While scanning, randomization is used to avoid complaints of system administrators but only groups of 16k hosts are possible.
+Nmap uses a stateful scanning approach to keep track of every packet in transit and to catch timeouts to try again to send packet.\\
+
+\subsubsection*{Zmap}
+A full Internet scan using nmap takes around 10 days which is quite slow.
+For that reason, \textbf{zmap} was developed by the university of Michigan which is able to do a full scan in around 45 minutes.
+It uses TCP SYN or UDP payload scans to find open ports and it is possible to distribute the scanning load on different machines and every IP is only scanned once.
+The performance is reached by using raw sockets and not keeping state of packets which makes it impossible to detect timeouts though.
+This is handled by cycling through the host IPs that have not jet responded a certain amount of times and then abort.
+Furthermore without keeping states, incoming packets that belong to the scan are more difficult to identify.
+zmap therefore uses IP IDs which are used to generate a validation with AES which is stored in the packet sent e.g. in the sequence number
+When receiving packets, they are validated using the validation, in the example from before sequence number - 1.
