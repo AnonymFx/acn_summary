@@ -59,7 +59,7 @@ Solutions for this are
   \item Finite infinity: set infinite costs to a specific number, e.g. 16 in RIP
   \item Split Horizon: Tell neighbours that they are part of the best path to a destination that the destination cannot be reached from the original node
   \item Poisoned Reverse: Actively adverse a route as unreachable to neighbours from which the route was learned
-\end{itemize}<++>
+\end{itemize}
 
 \subsubsection*{Path Vector Protocols}
 Path vector protocols try to improve the fact of D-V protocols that they do not include topology information.
@@ -89,7 +89,7 @@ Area border routes summarize distances to networks in the own area and advertise
 Inter domain routing is almost exclusively handled with the Boarder Gateway Protocol (BGP).
 It provides means to obtain subnet reachability from neighbouring ASes (external BGP, eBGP), propagate that information in the AS internally (internal BGP, iBGP) and determine good routes according to that information and router policies via semi-permanent TCP connections.
 ASes advertise reachable network prefixes to others and give a promise to forward traffic to that IP address space.
-These advertisements include a multitude of BGP attributes like AS-Paths (Path of AS-Numbers the advertisement has passed through) or the Next-Hop (gateway router to the next-hop ASA).
+These advertisements include a multitude of BGP attributes like AS-Paths (Path of AS-Numbers the advertisement has passed through) or the Next-Hop (gateway router to the next-hop AS).
 
 BGP messages can have the following types:
 \begin{itemize}
@@ -100,3 +100,49 @@ BGP messages can have the following types:
     These messages consist of the destination IP prefix, the AS path and the next hop and other attributes related to local preferences, route origins or others.
     Routers than can make routing decisions based on this information and their policies.
 \end{itemize}
+
+Routers may learn about multiple routes for a prefix.
+If that is the case, one of those routes has to be selected due to criteria like an policy decision, shortest AS-Path or closest next hop (hot-potato-routing) amongst others.\\
+\vspace{5pt}
+
+In the context of inter-domain routing, we define the following \textbf{terminology}:
+\begin{description}
+  \item[Transit AS] Relays traffic between other ASes
+  \item[Stub AS] Buys transit from one other AS but does not offer transit
+  \item[Multi-homed AS] Buys transit from $\geq 2$ other ASes, does not offer transit
+  \item[Peering] having a BGP relationship
+    \begin{itemize}
+      \item Private peering: peering between ASes in private locations like ASes or neutral server rooms
+      \item Public peering: "official" peering locations ("Room full of switches") like in Frankfurt or London
+    \end{itemize}
+  \item[Provider] Offers transit traffic for receiving money
+  \item[Customer] Gets transit for paying money
+  \item[Siblings] Mutual transit agreement to provide connectivity of the rest of the Internet for each other, so kind of an very extensive peering
+\end{description}
+
+\subsubsection*{Business and Policy Routing}
+Routing is done by the policy
+\begin{equation*}
+  \text{Routes via customer > Routes via peer > routes via provider}
+\end{equation*}
+In route announcement on the other hand first announce routes that incur financial gain if others use them, then routes that reduce costs if others use them and especially do not advert routes that incur financial loss as long as an alternative exists.
+ASes might add the same AS number subsequently to an AS-Path to increase path costs if they prefer another connection over the one this announcement was sent, might be due to lower costs.
+
+\subsubsection*{Tiers and Default-Free-Zone}
+Like mentioned in the introduction to this chapter, different tiers of providers exist.
+With our definitions in inter-domain routing of costumers, providers and peering, we can now better define them:
+\begin{description}
+  \item[Tier-1/Default-Free-Zone (DFZ)] Only have customers and peers, no providers
+  \item[Tier-2] only peerings and only tier-1 providers
+  \item[Tier-n] at least noe tier-(n-1) provider
+\end{description}
+
+\subsubsection*{Internet Fixed Points}
+Internet fixed points are ASes that are stable over a long period of time from different perspectives.
+Together these form the so called backbone of the Internet.
+To find those fixed points, the \textbf{k-core algorithm} can be applied:
+\begin{enumerate}
+  \item Remove all nodes with $degree = 1$ so long until no degree 1 nodes are left
+  \item Remove all nodes with $degree = 2$ so long until no degree 2 nodes are left
+  \item Do this until no nodes left $\Rightarrow$ $(Steps - 1)-core$ found.
+\end{enumerate}
