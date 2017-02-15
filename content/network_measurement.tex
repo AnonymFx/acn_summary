@@ -8,7 +8,7 @@ Different RFCs standards exist as guideline.
 Throughput is usually limited by the line rate and the speed and size of the lookup tables.
 It is measured in packets per second over the bandwidth since routers usually only look at packet headers and not the entire packet, so the actual size has only a minor importance.
 With this measurement unit the worst case scenario is network traffic at line rate and minimum packet size which is the minimum sized Ethernet packet plus the 7 byte preamble, 1 byte start-of-frame delimiter and the minimum inter-packet gap of 12 bytes, thus 84 bytes.\\
-\vspace{5pt}
+\vspace{4pt}
 
 When testing, different measuring methodologies can be applied.
 The simplest one is to apply the highest possible packet rate on A and measure the packet rate at B.
@@ -53,14 +53,14 @@ Also the NICs work with asynchronous push-pull models which can lead to micro bu
 Hardware generators on the other hand support hardware rate control where queues can be used and have good performance but they are quite inflexible.
 To combine the advantages of both, one can disable hardware control and use invalid packets in the queues to control the rate since those are simply dropped by the device under test without much overhead.
 
-\subsection{Active Measurements}
-\subsubsection*{Internet Wide Scans}
+\subsection{Internet Wide Scans}
 When doing larger scale network scans are performed, several points have to be taken into consideration.
-For one which targets are selected which might be a specific hitlist provided by e.g. traceroute, web server logs or traffic traces, certain IP addresses per subnet or even a full 0/0 scan.
+For one which targets are selected which might be a specific hitlist provided by e.g.\ traceroute, web server logs or traffic traces, certain IP addresses per subnet or even a full 0/0 scan.
 Also there are performance requirements that need to be met and ethical considerations, too, since one causes sometimes large amounts of traffic on the scanned network.\\
-\vspace{5pt}
+\vspace{4pt}
 
-\textbf{Nmap} is a common measurement tool which provides host discovery, service detection, OS detection and support for custom scripts.
+\subsubsection*{Nmap}
+Nmap is a common measurement tool which provides host discovery, service detection, OS detection and support for custom scripts.
 It provides a multitude of scanning techniques:
 \begin{itemize}
   \item TCP scan: Sends TCP packets with different flags set. A SYN scan checks for open ports, ACK scans scan for (un-) filtered ports by a firewall. Some more exist.
@@ -77,5 +77,46 @@ It uses TCP SYN or UDP payload scans to find open ports and it is possible to di
 The performance is reached by using raw sockets and not keeping state of packets which makes it impossible to detect timeouts though.
 This is handled by cycling through the host IPs that have not jet responded a certain amount of times and then abort.
 Furthermore without keeping states, incoming packets that belong to the scan are more difficult to identify.
-zmap therefore uses IP IDs which are used to generate a validation with AES which is stored in the packet sent e.g. in the sequence number
+Zmap therefore uses IP IDs which are used to generate a validation with AES which is stored in the packet sent e.g.\ in the sequence number
 When receiving packets, they are validated using the validation, in the example from before sequence number - 1.
+
+\subsubsection*{IPv6 Scanning}
+IPv6 scanning faces different challenges than IPv4 due to different routing, firewall and host configuration and the huge address space.
+To to the amount of possible addresses it is not possible to do a 0/0 scan so hitlists are used to define the targets.
+Sources for such hitlists are for example the Alexa Top 1 Million list (most popular websites), the Rapid7 DNS ANY list or DNS zone files (content of TLD name zones).
+Also traceroute or passive sources like packet traces or flow data can be taken into account.\\
+\vspace{4pt}
+
+IPv6 scans can be evaluated for reachability or stability.
+Also as long as the targets do not use IPv4 privacy extensions (Interface ID randomly chosen) the target device type can be determined.
+The criterion is that routers usually have the IID ::1 for the default gateway.
+
+\subsubsection*{Security Scans}
+\textbf{TLS scans} are used to scan the state of TLS protocols like HTTPS or IMAPS in the Internet by analysing certificate chains, expiry and algorithms.
+Scans are done by identifying hosts that offer TLS services, download the certificate chains and analise and validate these chains.\\
+\vspace{4pt}
+
+\textbf{SSH scans} mainly provide an overview over the security of the SSH configurations of hosts with public IPs.
+Since SSH is mostly used for administrative or security sensitive contexts it is usually advisable to notify CERTs, watchlist services and blocklist operators about scans.
+Also other measurements like an own scanning subnet with a abuse WHOIS email contact might be useful.\\
+In the past several internet wide SSH scans were performed which analysed key strength (length, debian weak keys, duplicate keys).\\
+\vspace{4pt}
+
+\textbf{IPMI (Intelligent Platform Management Interface)} is a out-of-band management system used in servers.
+It uses a separate OS which has full access to the host OS\@.
+IPMI scans try to detect known vulnerabilities in configurations, i.e.\ hosts should not be reachable from the public internet.
+When combining IPMI responses with HTTPS reachability to detect IPMI web-interfaces which also might be vulnerable.
+Compromised web servers again may lead to a compromised OS.\\
+Internet wide scans for IPMI-over-IP devices are showing declining numbers of reachable devices.
+Those who are reachable are heavily clustered in a view ASes though and detected HTTPS interfaces show that 90\% of them have 1024 bit keys or shorter.\\
+
+\textbf{BACnet (Building Automation and Control Networks)} is a protocol that is used to control heaters, solar panels and other building automation aspects.
+Access to those systems can lead to real world consequences.
+It is based on UDP and has no build in security.
+Devices providing this protocol have properties that can be queried via a SingleProperty or MultipleProperty request which enables attackers to generate larger responses which results in easier DOS attacks.
+To to these easily possible attacks, scans are performed to check the BACnet deployment in the internet.
+
+\subsubsection*{Ethical considerations}
+It is usually advisable to take some ethical steps before doing Internet wide scans.
+These include reducing the intrusiveness of scanning by avoiding logins or limit the scanning rate, providing information on the scanning machine's website, respond quickly to every inquiry and abuse email and offer possibilities for blacklisting IPs.
+A general guideline here is to be the "nice guy".
