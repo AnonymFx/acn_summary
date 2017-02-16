@@ -1,0 +1,11 @@
+%!TEX root = ../report.tex
+
+\section{Node Architectures}
+Nodes/Routers in a network consist of multiple input and output ports and a switching fabric in between.
+There are three types of switching fabric: memory, a bus, or a crossbar (net of buses).\\
+Usually the goal of a router is to completely process the incoming packets at line speed, but queuing/buffering might be necessary due to a too slow switching fabric or a overloading of one or multiple output ports.
+Recommended buffer sizes are $RTT \cdot \text{link capacity}$ by RFC 3439 or $\frac{RTT \cdot \text{link capacity}} {\sqrt{\text{number of flows}}}$ more recently.\\
+
+\textbf{First generation IP routers} had a CPU next to a global memory buffer which was connected to multiple line interfaces.
+\textbf{The second generation} then introduced local memory buffers for all interfaces and the \textbf{third} moved the CPU to a separate card besides the network interfaces.
+In \textbf{the forth generation} clustered and multistage network interfaces were added.
