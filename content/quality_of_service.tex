@@ -40,6 +40,16 @@ For a visualization see Figure~\ref{fig:nc_delay_and_backlog}.
   \caption{Delay and Backlog}\label{fig:nc_delay_and_backlog}
 \end{figure}
 
+Deterministic network calculus can be used when there are no cyclic dependencies, no feedback loops, no simple analysis exists (state explosion) and when a good model of the traffic is known.
+
+\subsection{Stochastic Network Calculus}
+In stochastic network calculus flows are defined by a sequence of non-negative, real random variables $(a_n)_{n \in \mathds{N}}$ of random size.
+Their cumulative arrival up to time n is then defined as $A(n) = \sum^n_{i=a}a_i$.
+$(a_n)$ can follow any random distribution and are considered to be independent and identically distributed.
+Similar to DNC, service curves are $S(n,m)$ of a server are defined as $A^*(n) \geq \inf_{0 \geq k \geq n} \{A(k) + S(k,n)\}$ where $S(n,m)$ can either be a stochastic or deterministic process.\\
+
+Stochastic network calculus is mainly used for video streaming, protocols with feedback loops, wireless networks or energy networks.
+
 \subsection{QoS in IP Networks}
 In modern IP networks traffic is usually limited to a fixed set of declared parameters concerning average, peak rate and burst size.
 To implement these limits, a token bucket can be used which fills with a pre-specified rate until it is full.

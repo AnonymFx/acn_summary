@@ -120,3 +120,43 @@ To to these easily possible attacks, scans are performed to check the BACnet dep
 It is usually advisable to take some ethical steps before doing Internet wide scans.
 These include reducing the intrusiveness of scanning by avoiding logins or limit the scanning rate, providing information on the scanning machine's website, respond quickly to every inquiry and abuse email and offer possibilities for blacklisting IPs.
 A general guideline here is to be the "nice guy".
+
+\subsection{Passive Measurements}
+Passive network measurement does not cause additional traffic like the approaches mentioned above but uses monitoring probes to analyze existing traffic.
+Important metrics here are traffic volume, traffic composition and packet inter-arrival times with different levels of granularity.
+When captured, different analyses can be performed, e.g.\ network utilization, QoS parameters, detection of failures and anomalies or traffic characterization.
+These informations might be useful for accounting, security or traffic engineering.\\
+
+The capturing hardware usually has to be able to perform on multi-gigabit/s links with relative cheap costs and simple deployment.
+Common approaches to these requirements are high-end network adapters with large amount of memory and functionality (still cheap?), sophisticated algorithms by eliminating copying of packets amongst others, sampling (probabilistic filtering of packets), filtering (mask, router state, hash based) and aggregation.\\
+
+The process passive measurement is depicted in Figure~\ref{fig:passive_network_measurement}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.8\textwidth]{figures/passive_network_measurement.png}
+  \caption{Passive Network Measurement Process}\label{fig:passive_network_measurement}
+\end{figure}
+
+\textbf{Packet capturing} is assisted by hardware.
+Server NICs have direct access to the main memory without processor support and do batch processing to reduce copy operations.
+Also special monitoring interface cards exist which usually only are able to receive data and provide certain processing features like filtering, high-precision time-stamps and others.
+
+\subsection{Detecting Traffic Misdirection in Interdomain Routing}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.6\textwidth]{figures/as_and_prefix_hijacking.png}
+  \caption{Possible attacks}\label{fig:fig:as_and_prefix_hijacking}
+\end{figure}
+
+Current hijack detection is done via multiple traceroute scans from multiple vantage points.
+To identify the poisoned part of the network, last hops to the target prefix and downstream graph of last hops are regarded.
+Possible detection metrics are a detection of an odd distribution of first-rank countries (5 neighbours Germany, 1 New Zealand), an odd distribution of first-rank ASes or odd RTTs.
+Also Exclusive AS connectivity can be used to detect how many ASes in the graph are connected exclusively through one neighbour of the target.
+With that approach a segmentation of the graph is possible which allows the specification of the impact of a possible hack.\\
+
+In prefix hijacking attackers announce a victim's (sub-) prefix to other ASes.
+We already have real-time detection for that.
+AS Hijacking is a more sophisticated approach where a letter of authorization has to be accepted by ISPs as a legitimation to advertise resources of a customer's AS.
+Such an attack is usually carried out over several month.
+In the example of LinkTel, the attackers re-registered an expiring domain (link-telecom.biz), forged an letter of authorization to the upstream provider and announced false BGP routes.\\
+In 2013 an escalation warning system for AS hijacking was designed at the TUM which uses passive monitoring of DNS expiry an re-registration and analysis of reverse DNS and BGP activity to identify vulnerable targets.
