@@ -141,6 +141,67 @@ The process passive measurement is depicted in Figure~\ref{fig:passive_network_m
 Server NICs have direct access to the main memory without processor support and do batch processing to reduce copy operations.
 Also special monitoring interface cards exist which usually only are able to receive data and provide certain processing features like filtering, high-precision time-stamps and others.
 
+\subsection*{Flow-based Traffic Measurements}
+Flows describe packets which belong together like all packets of a TCP connection (IP-5-Tuple).
+Flow data is usually measured passively on the network and is exported when on of two timeouts runs out.
+The inactive timeout starts at the last received packet of a flow and is reset with every packet.
+The active timeout starts with the first packet of a flow and is only reset if it expires.
+The inactive timeout was designed to export flow data of short lived flows whereas the active timeout sends data during a flow is active for long lived ones.o
+
+\subsubsection*{IP Flow Information eXport (IPFIX)}
+The IPFIX protocol was defined by the IETF in RFCs and is an extensible flow exportation protocol.
+The extensibility is achieved by differentiating between template and data records where the template defines the data format for the data records.\\
+During measurement, statistical counters and values are updated and whenever a flow terminates, the data is exported via SCTP or, if available, TCP or UDP.\\
+The metering process of IPFIX includes packet header capturing, timestamping, classifying and the maintaining of flow records where a flow record contains information about measured properties of the flow like total number of bytes in the flow or IP addresses.
+Exporting then sends flows to one or more collecting processes collected from one or more metering processes.
+In the end all data is collected and further processed.\\
+Metering and exporting can be done on network devices directly, or be on separate hardware.
+Collecting is usually done separately.\\
+Sampling and filtering can be used for very high-speed networks.
+
+\subsubsection*{Anomaly Detection with Machine Learning}
+Machine Learning can be used to detect anomalies based on flow data.
+For this feature vectors have to be created from flow data with numerical and categorical semantics.
+An example for such a transformation of the data is shown in Figure~\ref{fig:ml_feature_vector_creation}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/ml_feature_vector_creation}.
+  \caption{Feature Vector Creation}\label{fig:ml_feature_vector_creation}
+\end{figure}
+
+\textbf{Supervised machine learning} then uses labeled training data to learn what is benign and malicious traffic.
+\textbf{Unsupervised ML} on the other hand has no training data available.
+It tries to find clustered data and outliers.
+The outliers then represent an anomaly.\\
+
+To assess the quality of these approaches, different metrics can be used:
+\begin{itemize}
+  \item Precision = $\frac{\text{true positives}}{\text{true positives + false postives}}$\\
+    How many of the detected anomalies are actual anomalies?
+  \item Recall = $\frac{\text{true positives}}{\text{true positives + false negatives}}$\\
+    How many of all actual anomalies did I detect as anomalies?
+  \item Accuracy = $\frac{\text{true positives + true negatives}}{\text{all}}$\\
+    How many positive and negative classifications are correct?
+\end{itemize}
+The goal is to decrease false positives and negatives here, but in reality decreasing on type of error increases the other.
+
+\subsection{Amplification Attack Detection}
+In amplification attacks, the attacker sends small request to an amplifier network with a spoofed IP address which generate large response packets to the victim (owner of the spoofed address).\\
+The amplifier network might be able to detect such an attack though by passively measuring incoming and (potential) outgoing traffic.
+Different characteristics can be used then to identify an attack:
+\begin{itemize}
+  \item Amplification factor: compare incoming and outgoing traffic, if asymmetric an attack is possible
+  \item Packet size similarity: Same sized packets incoming frequently
+  \item Payload similarities: Packets from the attacker have similar payload content. Payload similarities are detected by a low entropy.
+  \item Unsolicited ICMP messages: backscatter ICMP message of the victim are indicator for an attack
+  \item TTL measurements: path form attacker $\neq$ path from amplifier to victim indicates an attack
+\end{itemize}
+
+\subsection{Hybrid Measurements}
+A hybrid approach between active and passive measurement can be taken where packet flows are modified by piggybacking or header modification.
+This enables adding additional information to packets without applying additional load to the network.
+This has to be taken with care though, since people might not like this.
+
 \subsection{Detecting Traffic Misdirection in Interdomain Routing}
 \begin{figure}[H]
   \centering
