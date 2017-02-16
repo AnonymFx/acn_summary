@@ -1,0 +1,12 @@
+%!TEX root = ../report.tex
+
+\section{Internet Transport Layer}
+\subsubsection*{Congestion Control}
+One of the transports layers jobs is to handle congestion.
+Congestions happens if e.g.\ too many sources send too much data to fast for the network to handle which results in packet loss and long packet delays.\\
+Congestion control tries to solve this because without controlling the outgoing traffic, capacity may drop dramatically because of congestion collapse.
+\textbf{End-end congestion control} infers congestion only by observing lost packets and delay whereas \textbf{network-assisted congestion control} use informations of routers to detect congestion.
+Also an explicit rate can be told to the sender by the network with the second approach.\\
+
+\textbf{Self clocking congestion control} is another approach which sends a new packet for every packet that left the network what the sender knows from ACK messages.
+It assumes though that packet loss only occurs due to congestion which is not true for wireless networks for example.
