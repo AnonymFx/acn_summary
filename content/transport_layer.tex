@@ -12,19 +12,25 @@ Also an explicit rate can be told to the sender by the network with the second a
 It assumes though that packet loss only occurs due to congestion which is not true for wireless networks for example.
 
 \subsection{Transport Control Protocol (TCP)}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.7\textwidth]{figures/tcp_header.png}
+  \caption{TCP Header}\label{fig:tcp_header}
+\end{figure}
 TCP is an connection oriented protocol that sends packets in order and does retransmission for lost ones.
 For the detection of losses, an acknowledgement flag (ACK) is used.
-It has an mechanism to avoid losses as good as possible by not overloading the receiver (size of rwin) and network (cwin) that adjusts the sending window to $swin = min(rwin,cwin)$.\\
+It has an mechanism to avoid losses as good as possible by not overloading the receiver (size of rwin) and network (cwin) that adjusts the sending window to $swin = \min(rwin,cwin)$.\\
 
 A connection is established with the TCP handshake which consists of a SYN, SYNACK and ACK message.
 In that, the receiver tells the sender its maximum segment size (MSS) which represents the maximum size of a TCP segment it is able to receive.
-When this is done, TCP continues with the so called \textbf{slow start} where the cwin is 1 MSS.
+When this is done, TCP continues with the so called \textbf{slow start} where the cwin is 1 MSS\@.
 The actual sending rate is then roughly calculated with $rate = \frac{cwin}{RTT} Bytes/s$.
 To quickly ramp up the transmission, the cwin is increased exponentially until a sender threshold is met (usually cwin/2 after the first slow start phase).
-TCP then enters the congestion avoidance phase where the cwin is increased linearly by 1 MSS every RTT until one of two cases appear.
-If 3 duplicate ACKs are received (network is still able to send some packets), only the packet for which the 3 ACKs were received is being transmitted and the threshold is set to cwin/2 and cwin is set to threshold.
-If a timeout occurs (more severe network congestion), the threshold is also set to cwin/2 but cwin is set to 1 MSS again (slow start).
-Figure~\ref{fig:tcp_sender_congestion_control} shows a good overview over this.
+TCP then enters the congestion avoidance phase where the cwin is increased linearly by 1 MSS every RTT\@.
+If a packet gets lost (e.g.\ 3 duplicate ACKs), cwin is cut in half.
+\textbf{Without fast recovery} the (half) cwin is completely sent again whereas \textbf{with fast recovery} only the packet for which the 3 ACKs were received is being retransmitted.
+When a timeout occurs he threshold is set to cwin/2 and cwin is set to 1 MSS again (slow start with exponential increase).
+Figure~\ref{fig:tcp_sender_congestion_control} shows a good overview over this.\\
 \begin{figure}[h]
   \centering
   \includegraphics[width=.8\textwidth]{figures/tcp_sender_congestion_control}
@@ -47,3 +53,38 @@ Large buffers in routes cause problems for TCP connections since once queues are
 TCP then gets no early warning about congestion cause no duplicate ACKs are sent but instead sudden timeouts are recognized.
 For this reason a large oscillation happens between sending way too much and send way to little (start of slow start again).
 Repetition: Rule of thumb for buffers: $\frac{RTT \cdot C}{\sqrt{N}}$ where C is the link bandwidth and N the number of flows.
+
+\subsubsection*{TCP with Explicit Congestion Notification (ECN)}
+ECN is a 2 bit field in the IP header.
+It can be used on the network layer where endpoints set it to ECT(0) or ECT(1) to declare ECN capable transports and routers set ECN to CE (ECT = ECN capable transport, CE = congestion encountered).\\
+On the transport layer, endpoints negotiate ECN at connection setup.
+TCP then reacts to CE as if packet is lost with a ECN-Echo to echo back the congestion experienced to the sender which reduces the cwin.
+ECT(0) and ECT(1) can be used to differentiate between packets and flows.
+
+\subsubsection*{Data Center TCP (DCTCP)}
+DCTCP is an enhancement of TCP's congestion control algorithm that responds to congestion not only regarding its presence but also the amount of congestion.
+
+\subsubsection*{TCP CUBIC}
+TCP CUBIC is a loss based congestion control algorithm that optimizes for high bandwidth high latency.
+It modifies the window growth algorithm so that the window grows slowly around the maximum size.
+Standard TCP outperforms CUBIC in short RTTs though.
+
+\subsubsection*{TCP Vegas}
+TCP Vegas is a delay based algorithm that uses $i^{th} RTT > min~RTT + delay~threshold$ to adjust the window size.
+
+\subsubsection*{Delay Gradient TCP}
+Delay Gradient TCP uses the delay gradient as a congestion indicator.
+It has an average probability of back off independent of RTT and works well in loss-based congestion control flows.
+
+\subsubsection*{TCP Remy}
+TCP Remy is an algorithm that tries to find the optimal congestion control protocol for a given network defined by prior network assumptions and goals by using a heuristic search procedure that generates different CC algorithms.
+
+\subsubsection*{TCP BBR (Bottleneck Bandwidth and RTT)}
+TCP BBR tries to estimate when the queue will become empty and sends more data just in time.
+This is realized by estimating the optimal rate on which the maximum bandwidth and RTT is reached, so the maxiumum badnwidth-delay product (BDP).
+Every ACK measures the RTT and delivery rate by updating the min\_RTT and max\_rate and adapts the rate to assure max\_rate and min\_RTT where the maximum observed bandwidth has priority over $cwin = 2 \cdot min\_RTT \cdot max\_rate$.\\
+TCP BBR delivers very good performance and is already deployed in Google WAN backbones.
+
+\subsubsection*{Multipath TCP}
+The IETF develops an multipath-aware congestion control transport protocol that can be used for example in smartphones with WLAN and Mobile networks.
+
