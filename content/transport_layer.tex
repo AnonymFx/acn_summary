@@ -1,7 +1,7 @@
 %!TEX root = ../report.tex
 
 \section{Internet Transport Layer}
-\subsubsection*{Congestion Control}
+\subsection{Congestion Control}
 One of the transports layers jobs is to handle congestion.
 Congestions happens if e.g.\ too many sources send too much data to fast for the network to handle which results in packet loss and long packet delays.\\
 Congestion control tries to solve this because without controlling the outgoing traffic, capacity may drop dramatically because of congestion collapse.
@@ -10,3 +10,40 @@ Also an explicit rate can be told to the sender by the network with the second a
 
 \textbf{Self clocking congestion control} is another approach which sends a new packet for every packet that left the network what the sender knows from ACK messages.
 It assumes though that packet loss only occurs due to congestion which is not true for wireless networks for example.
+
+\subsection{Transport Control Protocol (TCP)}
+TCP is an connection oriented protocol that sends packets in order and does retransmission for lost ones.
+For the detection of losses, an acknowledgement flag (ACK) is used.
+It has an mechanism to avoid losses as good as possible by not overloading the receiver (size of rwin) and network (cwin) that adjusts the sending window to $swin = min(rwin,cwin)$.\\
+
+A connection is established with the TCP handshake which consists of a SYN, SYNACK and ACK message.
+In that, the receiver tells the sender its maximum segment size (MSS) which represents the maximum size of a TCP segment it is able to receive.
+When this is done, TCP continues with the so called \textbf{slow start} where the cwin is 1 MSS.
+The actual sending rate is then roughly calculated with $rate = \frac{cwin}{RTT} Bytes/s$.
+To quickly ramp up the transmission, the cwin is increased exponentially until a sender threshold is met (usually cwin/2 after the first slow start phase).
+TCP then enters the congestion avoidance phase where the cwin is increased linearly by 1 MSS every RTT until one of two cases appear.
+If 3 duplicate ACKs are received (network is still able to send some packets), only the packet for which the 3 ACKs were received is being transmitted and the threshold is set to cwin/2 and cwin is set to threshold.
+If a timeout occurs (more severe network congestion), the threshold is also set to cwin/2 but cwin is set to 1 MSS again (slow start).
+Figure~\ref{fig:tcp_sender_congestion_control} shows a good overview over this.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.8\textwidth]{figures/tcp_sender_congestion_control}
+  \caption{TCP Sender Congestion Control}\label{fig:tcp_sender_congestion_control}
+\end{figure}
+
+\subsubsection*{TCP Fairness}
+Two competing TCP sessions will over time get the same bandwidth as indicated in Figure~\ref{fig:tcp_fairness}.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.6\textwidth]{figures/tcp_fairness.png}
+  \caption{TCP Fairness}\label{fig:tcp_fairness}
+\end{figure}
+If an app opens multiple connections though, it might get an higher share of bandwidth because every single connections gets an equal amount independent of the app.
+Also multimedia apps often do not want to use TCP, because they do not want the bandwidth to be throttled.
+For this reason UDP is oftentimes used with a TCP-friendly rate control.
+
+\subsubsection*{Buffer Bloat}
+Large buffers in routes cause problems for TCP connections since once queues are full at the bottleneck, large queueing delays occur.
+TCP then gets no early warning about congestion cause no duplicate ACKs are sent but instead sudden timeouts are recognized.
+For this reason a large oscillation happens between sending way too much and send way to little (start of slow start again).
+Repetition: Rule of thumb for buffers: $\frac{RTT \cdot C}{\sqrt{N}}$ where C is the link bandwidth and N the number of flows.
