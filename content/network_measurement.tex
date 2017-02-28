@@ -1,18 +1,18 @@
 %!TEX root = ../report.tex
 
 \section{Network Measurement}
-Network performance can be measured with different metrics like throughput (bandwidth or packet rate), latency (average, median, standard deviation,\dots), frame loss rate, topology measurements or others with different circumstances (load, traffic type,\dots).
-Different RFCs standards exist as guideline.
+Network performance can be measured for different metrics like throughput (bandwidth or packet rate), latency (average, median, standard deviation,\dots), frame loss rate, topology measurements or others with different circumstances (load, traffic type,\dots).
+Different RFC standards exist as guideline.
 
 \subsection{Throughput}
 Throughput is usually limited by the line rate and the speed and size of the lookup tables.
-It is measured in packets per second over the bandwidth since routers usually only look at packet headers and not the entire packet, so the actual size has only a minor importance.
-With this measurement unit the worst case scenario is network traffic at line rate and minimum packet size which is the minimum sized Ethernet packet plus the 7 byte preamble, 1 byte start-of-frame delimiter and the minimum inter-packet gap of 12 bytes, thus 84 bytes.\\
+It is measured in packets per second (not bandwidth) since routers usually only look at packet headers and not the entire packet, so the actual size has only a minor importance.
+The worst case scenario regarding costs is network traffic at line rate and minimum packet size which is the minimum sized Ethernet packet plus the 7 byte preamble, 1 byte start-of-frame delimiter and the minimum inter-packet gap of 12 bytes, thus 84 bytes.\\
 \vspace{4pt}
 
 When testing, different measuring methodologies can be applied.
 The simplest one is to apply the highest possible packet rate on A and measure the packet rate at B.
-Though with this method, the devices might get overloaded which leads to different behavior.
+With this method, the devices might get overloaded though which leads to different behaviors.
 So a better version is to apply varying rates on A and find the highest rate were no loss occurs (RFC 2544).
 Problems of this approach again are that some devices loose packets when suddenly facing high packet rates due to energy saving mechanisms.
 As a summary the best approach depends on the device under test.
@@ -21,7 +21,7 @@ As a summary the best approach depends on the device under test.
 Potential bottlenecks for packet forwarding are CPU processing power, NIC processing power, Bus bandwidth, memory bandwidth or CPU caches.
 As researches found out, the biggest limitation origins in the CPU.
 The most time is spent to process, receive and transmit packets there.
-When switching from kernel to user space, performance can be significantly increased due to fewer expensive system calls, simplified memory management and batch processing through the whole application.
+When transferring the network stack from kernel to user space, performance can be significantly increased due to fewer expensive system calls, simplified memory management and batch processing through the whole application.
 The disadvantages on the other hand are that only raw packets are handled, so protocols have to be reimplemented for every application, NICs can only be used by one application and there is no API compatibility to traditional user space applications.
 
 \subsection{Parallel Packet Processing}
@@ -78,7 +78,7 @@ The performance is reached by using raw sockets and not keeping state of packets
 This is handled by cycling through the host IPs that have not jet responded a certain amount of times and then abort.
 Furthermore without keeping states, incoming packets that belong to the scan are more difficult to identify.
 Zmap therefore uses IP IDs which are used to generate a validation with AES which is stored in the packet sent e.g.\ in the sequence number
-When receiving packets, they are validated using the validation, in the example from before sequence number - 1.
+When receiving packets, they are validated using the validation, in the example from before $sequence~number- 1$.
 
 \subsubsection*{IPv6 Scanning}
 IPv6 scanning faces different challenges than IPv4 due to different routing, firewall and host configuration and the huge address space.
@@ -98,7 +98,7 @@ Scans are done by identifying hosts that offer TLS services, download the certif
 
 \textbf{SSH scans} mainly provide an overview over the security of the SSH configurations of hosts with public IPs.
 Since SSH is mostly used for administrative or security sensitive contexts it is usually advisable to notify CERTs, watchlist services and blocklist operators about scans.
-Also other measurements like an own scanning subnet with a abuse WHOIS email contact might be useful.\\
+Also other measurements like an own scanning subnet with a abuse WHOIS email contact might be useful to hide one's identity.\\
 In the past several internet wide SSH scans were performed which analysed key strength (length, debian weak keys, duplicate keys).\\
 \vspace{4pt}
 
@@ -108,13 +108,13 @@ IPMI scans try to detect known vulnerabilities in configurations, i.e.\ hosts sh
 When combining IPMI responses with HTTPS reachability to detect IPMI web-interfaces which also might be vulnerable.
 Compromised web servers again may lead to a compromised OS.\\
 Internet wide scans for IPMI-over-IP devices are showing declining numbers of reachable devices.
-Those who are reachable are heavily clustered in a view ASes though and detected HTTPS interfaces show that 90\% of them have 1024 bit keys or shorter.\\
+Those who are reachable are heavily clustered in a view ASes though and detected HTTPS interfaces show that 90\% of them have 1024 bit or shorter keys.\\
 
 \textbf{BACnet (Building Automation and Control Networks)} is a protocol that is used to control heaters, solar panels and other building automation aspects.
 Access to those systems can lead to real world consequences.
 It is based on UDP and has no build in security.
 Devices providing this protocol have properties that can be queried via a SingleProperty or MultipleProperty request which enables attackers to generate larger responses which results in easier DOS attacks.
-To to these easily possible attacks, scans are performed to check the BACnet deployment in the internet.
+To detect these easily possible attacks, scans are performed to check the BACnet deployment in the internet.
 
 \subsubsection*{Ethical considerations}
 It is usually advisable to take some ethical steps before doing Internet wide scans.
@@ -146,22 +146,22 @@ Flows describe packets which belong together like all packets of a TCP connectio
 Flow data is usually measured passively on the network and is exported when on of two timeouts runs out.
 The inactive timeout starts at the last received packet of a flow and is reset with every packet.
 The active timeout starts with the first packet of a flow and is only reset if it expires.
-The inactive timeout was designed to export flow data of short lived flows whereas the active timeout sends data during a flow is active for long lived ones.o
+The inactive timeout was designed to export flow data of short lived flows whereas the active timeout sends data during a flow is active for long lived ones.
 
 \subsubsection*{IP Flow Information eXport (IPFIX)}
 The IPFIX protocol was defined by the IETF in RFCs and is an extensible flow exportation protocol.
 The extensibility is achieved by differentiating between template and data records where the template defines the data format for the data records.\\
 During measurement, statistical counters and values are updated and whenever a flow terminates, the data is exported via SCTP or, if available, TCP or UDP.\\
 The metering process of IPFIX includes packet header capturing, timestamping, classifying and the maintaining of flow records where a flow record contains information about measured properties of the flow like total number of bytes in the flow or IP addresses.
-Exporting then sends flows to one or more collecting processes collected from one or more metering processes.
-In the end all data is collected and further processed.\\
+Exporting then sends flows to one or more collecting processes.
+In the end data is collected from all capturing points and further processed.\\
 Metering and exporting can be done on network devices directly, or be on separate hardware.
 Collecting is usually done separately.\\
 Sampling and filtering can be used for very high-speed networks.
 
 \subsubsection*{Anomaly Detection with Machine Learning}
 Machine Learning can be used to detect anomalies based on flow data.
-For this feature vectors have to be created from flow data with numerical and categorical semantics.
+For this, feature vectors have to be created from flow data with numerical and categorical semantics.
 An example for such a transformation of the data is shown in Figure~\ref{fig:ml_feature_vector_creation}.
 \begin{figure}[h]
   \centering
@@ -209,15 +209,15 @@ This has to be taken with care though, since people might not like this.
   \caption{Possible attacks}\label{fig:fig:as_and_prefix_hijacking}
 \end{figure}
 
+In prefix hijacking attackers announce a victim's (sub-) prefix to other ASes.
+We already have real-time detection for that.
+AS Hijacking is a more sophisticated approach where a letter of authorization has to be accepted by ISPs as a legitimation to advertise resources of a customer's AS\@.
+Such an attack is usually carried out over several month.
+In the example of LinkTel, the attackers re-registered an expiring domain (link-telecom.biz), forged an letter of authorization to the upstream provider and announced false BGP routes.\\
+In 2013 an escalation warning system for AS hijacking was designed at the TUM which uses passive monitoring of DNS expiry an re-registration and analysis of reverse DNS and BGP activity to identify vulnerable targets.
+
 Current hijack detection is done via multiple traceroute scans from multiple vantage points.
 To identify the poisoned part of the network, last hops to the target prefix and downstream graph of last hops are regarded.
 Possible detection metrics are a detection of an odd distribution of first-rank countries (5 neighbours Germany, 1 New Zealand), an odd distribution of first-rank ASes or odd RTTs.
 Also Exclusive AS connectivity can be used to detect how many ASes in the graph are connected exclusively through one neighbour of the target.
 With that approach a segmentation of the graph is possible which allows the specification of the impact of a possible hack.\\
-
-In prefix hijacking attackers announce a victim's (sub-) prefix to other ASes.
-We already have real-time detection for that.
-AS Hijacking is a more sophisticated approach where a letter of authorization has to be accepted by ISPs as a legitimation to advertise resources of a customer's AS.
-Such an attack is usually carried out over several month.
-In the example of LinkTel, the attackers re-registered an expiring domain (link-telecom.biz), forged an letter of authorization to the upstream provider and announced false BGP routes.\\
-In 2013 an escalation warning system for AS hijacking was designed at the TUM which uses passive monitoring of DNS expiry an re-registration and analysis of reverse DNS and BGP activity to identify vulnerable targets.

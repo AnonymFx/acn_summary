@@ -83,7 +83,7 @@ RSVP is used to communicate/signal requirements to the network.
 This is done by sending information about the QoS that is required (r-spec) and the characteristics of the traffic that will be sent into the network (t-spec) to routers.\\
 More precisely senders and receivers first join a multicast group.
 The sender then sends a path message to make its presence known to the routers which store path states which consist of the IP address of the previous node and a sender template (data format of the sender), sender t-spec and adspec (advertisement data).
-In the end a path teardown message is sent to remove the path state from routers.\\
+In the end of the entire communication that required RSVP, a path teardown message is sent to remove the path state from routers.\\
 The receiver send a reservation message to reserve resources from sender(s) to receiver.
 At every node, the destination IP changes to the next node on the reverse path and the source IP gets the address of the previous node.
 In the end a reservation teardown message is sent to remove reservations.

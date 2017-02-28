@@ -22,7 +22,7 @@ The data-link layer has the responsibility of transferring a datagram from one n
 
 \subsubsection*{Multiple Access Protocols}
 When sharing a single channel, a distributed algorithm manages how nodes share it.
-This management is done via the same channel as the actual communication and does not require a separate one coordination.
+This management is done via the same channel as the actual communication and does not require a separate one for coordination.
 
 \subsubsection*{Medium Access Control (MAC) Protocols Taxonomy}
 \begin{description}
@@ -37,11 +37,11 @@ This management is done via the same channel as the actual communication and doe
   \includegraphics[width=.8\textwidth]{figures/ethernet_frame.png}
   \caption{Ethernet Frame}\label{fig:ethernet_frame}
 \end{figure}
-IPG = Inter packet gap, minimum idle period
-Preamble = 7 byte (10101010\dots)
-SFD = Start-of-frame delimiter (10101011)
-Type = Ethernet II:\@ Protocol type of payload, Ethernet I:\@ length of payload in bytes
-PAD = Padding if data length smaller than 46 byte
+IPG = Inter packet gap, minimum idle period,
+Preamble = 7 byte (10101010\dots),
+SFD = Start-of-frame delimiter (10101011),
+Type = Ethernet II:\@ Protocol type of payload, Ethernet I:\@ length of payload in bytes,
+PAD = Padding if data length smaller than 46 byte,
 FCS = Frame check sequence (CRC-32)
 
 There are several Ethernet standards, but they all share a common MAC protocol and frame format.
@@ -81,7 +81,7 @@ Because of this, frames from all connected nodes can collide with each other.
 Furthermore there is no frame buffering or CSMA/CD.
 
 \subsubsection*{Switch}
-Switches are a lot smarter when compared to routers.
+Switches are a lot smarter when compared to hubs.
 They store and forward Ethernet frames only to the node that the destination MAC address belongs to.
 Furthermore they use CSMA/CD to access links.
 Hosts do not need to be aware of the presence of switches and they do not need to be configures and learn themselves.

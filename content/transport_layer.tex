@@ -24,12 +24,12 @@ It has an mechanism to avoid losses as good as possible by not overloading the r
 A connection is established with the TCP handshake which consists of a SYN, SYNACK and ACK message.
 In that, the receiver tells the sender its maximum segment size (MSS) which represents the maximum size of a TCP segment it is able to receive.
 When this is done, TCP continues with the so called \textbf{slow start} where the cwin is 1 MSS\@.
-The actual sending rate is then roughly calculated with $rate = \frac{cwin}{RTT} Bytes/s$.
-To quickly ramp up the transmission, the cwin is increased exponentially until a sender threshold is met (usually cwin/2 after the first slow start phase).
-TCP then enters the congestion avoidance phase where the cwin is increased linearly by 1 MSS every RTT\@.
-If a packet gets lost (e.g.\ 3 duplicate ACKs), cwin is cut in half.
-\textbf{Without fast recovery} the (half) cwin is completely sent again whereas \textbf{with fast recovery} only the packet for which the 3 ACKs were received is being retransmitted.
-When a timeout occurs he threshold is set to cwin/2 and cwin is set to 1 MSS again (slow start with exponential increase).
+To quickly ramp up the transmission, the cwin is increased exponentially until a sender threshold is met.
+TCP then enters the congestion avoidance phase where the cwin is increased linearly.
+If a packet gets lost (e.g.\ 3 duplicate ACKs), the thrshold is cut in half.
+\textbf{With fast recovery}, cwin also cut in half an congestion avoidance starts again.
+\textbf{Without fast recovery} cwin is set to 1 MSS again and slow start is applied.
+Besides fast recovery, one is also able to use \textbf{fast retransmit}, where not the entire cwin is sent again for missing ACKs but only the missing packet.
 Figure~\ref{fig:tcp_sender_congestion_control} shows a good overview over this.\\
 \begin{figure}[h]
   \centering

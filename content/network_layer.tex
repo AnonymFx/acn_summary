@@ -16,7 +16,7 @@ The network layer serves the following functions:
 \end{figure}
 
 \subsubsection*{IPv4 Addressing}
-IPv4 addresses are 32-bit identifiers for every host and router interfaces where interfaces represent the connection between host/router and physical link.
+IPv4 addresses are 32-bit identifiers for every host and router interface where interfaces represent the connection between host/router and physical link.
 
 Subnets are device interfaces with the same subnet part of the IP address which can physically reach each other without intervening router.
 
@@ -61,14 +61,14 @@ Measurements are done with probe packets and looking at the packet loss, one-way
 Traceroute uses different TTLs in the IP header to get the route from the source to the destination.
 In case of load balancing though, traceroute might fail due to the appearance of ghost paths when successive packets are routed on different routes.
 
-Load balancing routers usually use the IP-5-Tuple to determine routes, so to fixthis Paris traceroute uses different fields than normal traceroute (e.g.\ destination port for tcp) to do measurements.
+Load balancing routers usually use the IP-5-Tuple to determine routes, so to fix this Paris traceroute uses different fields than normal traceroute (e.g.\ destination port for tcp) to do measurements.
 
 \subsection{Address Resolution Protocol (ARP)}
-The ARP is used to map IP addresses to MAC addresses.
+ARP is used to map IP addresses to MAC addresses.
 For that, an ARP broadcast is sent by the sender of an IP packet to get the MAC address of the next hop.
 The node with the specified IP address responds and the sender caches the mapping and is able to send the resulting Ethernet frame.
 In case we have a network with routers, the router then again does an ARP request for the IP address specified in the received IP header and so the procedure begins again at that point.
-Cached information times out when not refreshed in a certain threshold.
+Cached information times out when not refreshed within a certain time threshold.
 \begin{figure}[H]
   \centering
   \includegraphics[width=.8\textwidth]{figures/arp_packet.png}
@@ -78,7 +78,7 @@ Cached information times out when not refreshed in a certain threshold.
 \textbf{Reverse ARP} also exists, but is rarely used.
 
 \textbf{Proxy ARP} also responds for ARP request of one of its networks with ARP responses for hosts of another network.
-This enables transparent subnet gatewaying (two LANs with in same subnet), Host joining LAN via VPN and host separated via firewalls.
+This enables transparent subnet gatewaying (two LANs with in same subnet), a host joining LAN via VPN (VPN server does proxy ARP) and to include host that are separated via firewalls (firewall handles proxy ARP).
 \vspace{5pt}
 
 Since ARP is stateless and not authenticated, ARP responses can easily be forged to poison the cache of hots which can be used to redirect traffic.
