@@ -75,7 +75,7 @@ A full Internet scan using nmap takes around 10 days which is quite slow.
 For that reason, \textbf{zmap} was developed by the university of Michigan which is able to do a full scan in around 45 minutes.
 It uses TCP SYN or UDP payload scans to find open ports and it is possible to distribute the scanning load on different machines and every IP is only scanned once.
 The performance is reached by using raw sockets and not keeping state of packets which makes it impossible to detect timeouts though.
-This is handled by cycling through the host IPs that have not jet responded a certain amount of times and then abort.
+This is handled by cycling through the host IPs that have not yet responded a certain amount of times and then abort.
 Furthermore without keeping states, incoming packets that belong to the scan are more difficult to identify.
 Zmap therefore uses IP IDs which are used to generate a validation with AES which is stored in the packet sent e.g.\ in the sequence number
 When receiving packets, they are validated using the validation, in the example from before $sequence~number- 1$.
@@ -88,21 +88,21 @@ Also traceroute or passive sources like packet traces or flow data can be taken 
 \vspace{4pt}
 
 IPv6 scans can be evaluated for reachability or stability.
-Also as long as the targets do not use IPv4 privacy extensions (Interface ID randomly chosen) the target device type can be determined.
+Also as long as the targets do not use IPv6 privacy extensions (Interface ID randomly chosen) the target device type can be determined.
 The criterion is that routers usually have the IID ::1 for the default gateway.
 
 \subsubsection*{Security Scans}
-\textbf{TLS scans} are used to scan the state of TLS protocols like HTTPS or IMAPS in the Internet by analysing certificate chains, expiry and algorithms.
-Scans are done by identifying hosts that offer TLS services, download the certificate chains and analise and validate these chains.\\
+\textbf{TLS scans} are used to scan the state of TLS protocols like HTTPS or IMAPS in the Internet by analyzing certificate chains, expiry and algorithms.
+Scans are done by identifying hosts that offer TLS services, download the certificate chains and analyse and validate these chains.\\
 \vspace{4pt}
 
 \textbf{SSH scans} mainly provide an overview over the security of the SSH configurations of hosts with public IPs.
 Since SSH is mostly used for administrative or security sensitive contexts it is usually advisable to notify CERTs, watchlist services and blocklist operators about scans.
 Also other measurements like an own scanning subnet with a abuse WHOIS email contact might be useful to hide one's identity.\\
-In the past several internet wide SSH scans were performed which analysed key strength (length, debian weak keys, duplicate keys).\\
+In the past several Internet wide SSH scans were performed which analysed key strength (length, debian weak keys, duplicate keys).\\
 \vspace{4pt}
 
-\textbf{IPMI (Intelligent Platform Management Interface)} is a out-of-band management system used in servers.
+\textbf{IPMI (Intelligent Platform Management Interface)} is an out-of-band management system used in servers.
 It uses a separate OS which has full access to the host OS\@.
 IPMI scans try to detect known vulnerabilities in configurations, i.e.\ hosts should not be reachable from the public internet.
 When combining IPMI responses with HTTPS reachability to detect IPMI web-interfaces which also might be vulnerable.

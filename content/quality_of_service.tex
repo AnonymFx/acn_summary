@@ -17,7 +17,7 @@ To guarantee the specifications in an SLA one has to perform different tasks:
     A slight deviation of this approach is round robin, where the queues are polled after one another.\\
     A third approach namely \textbf{weighted fair queuing} tries to solve the problem of round robin queueing, where the bandwidth per queue depends on the packet sizes, and priority queue scheduling (starvation) by splitting the actual available bandwidth according to the weights of different queues.
     The implementation is much more complex though and thus it is rarely used in real switches.
-  \item Monitoring: Check actively or passively if SLAs are met\\
+  \item Monitoring: Check actively or passively if SLAs are met.\\
     This can be done with live tests, emulations or simulations or formal verification methods.
     The more critical real-time requirements an application has, the more precise the measuring algorithms typically are.
 \end{itemize}
@@ -63,7 +63,7 @@ Routers then decide based on this information and remaining unreserved resources
 Two service models are possible here.
 A guaranteed service where worst-case traffic is important or a controlled load service where the QoS closely corresponds to the QoS that the same flow would receive from an unloaded network.
 
-\subsubsection*{IEFT Differentiated Services}
+\subsubsection*{IETF Differentiated Services}
 IEFT Differentiated Services want qualitative service classes (platinum, gold, silver services).
 Implementation here differs regarding core and edge nodes.
 The edge routers look at the per-flow traffic, marks packets according to a class as "in-profile" or "out-profile" and forwards to core nodes regarding a token bucket.

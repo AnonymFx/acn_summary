@@ -81,7 +81,7 @@ TCP Remy is an algorithm that tries to find the optimal congestion control proto
 
 \subsubsection*{TCP BBR (Bottleneck Bandwidth and RTT)}
 TCP BBR tries to estimate when the queue will become empty and sends more data just in time.
-This is realized by estimating the optimal rate on which the maximum bandwidth and RTT is reached, so the maxiumum badnwidth-delay product (BDP).
+This is realized by estimating the optimal rate on which the maximum bandwidth and RTT is reached, so the maximum bandwidth-delay product (BDP).
 Every ACK measures the RTT and delivery rate by updating the min\_RTT and max\_rate and adapts the rate to assure max\_rate and min\_RTT where the maximum observed bandwidth has priority over $cwin = 2 \cdot min\_RTT \cdot max\_rate$.\\
 TCP BBR delivers very good performance and is already deployed in Google WAN backbones.
 
